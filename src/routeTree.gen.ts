@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as FavouritesRouteImport } from './routes/favourites'
-import { Route as SellRouteImport } from './routes/sell'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedFavouritesRouteImport } from './routes/_authenticated/favourites'
+import { Route as AuthenticatedSellRouteImport } from './routes/_authenticated/sell'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -19,15 +21,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FavouritesRoute = FavouritesRouteImport.update({
-  id: '/favourites',
-  path: '/favourites',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SellRoute = SellRouteImport.update({
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedFavouritesRoute = AuthenticatedFavouritesRouteImport.update({
+  id: '/favourites',
+  path: '/favourites',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSellRoute = AuthenticatedSellRouteImport.update({
   id: '/sell',
   path: '/sell',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ListingIdRoute = ListingIdRouteImport.update({
   id: '/listing/$id',
@@ -37,35 +48,46 @@ const ListingIdRoute = ListingIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/favourites': typeof FavouritesRoute
-  '/sell': typeof SellRoute
+  '/auth': typeof AuthRoute
+  '/favourites': typeof AuthenticatedFavouritesRoute
+  '/sell': typeof AuthenticatedSellRoute
   '/listing/$id': typeof ListingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/favourites': typeof FavouritesRoute
-  '/sell': typeof SellRoute
+  '/auth': typeof AuthRoute
+  '/favourites': typeof AuthenticatedFavouritesRoute
+  '/sell': typeof AuthenticatedSellRoute
   '/listing/$id': typeof ListingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/favourites': typeof FavouritesRoute
-  '/sell': typeof SellRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/favourites': typeof AuthenticatedFavouritesRoute
+  '/_authenticated/sell': typeof AuthenticatedSellRoute
   '/listing/$id': typeof ListingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/favourites' | '/sell' | '/listing/$id'
+  fullPaths: '/' | '/auth' | '/favourites' | '/sell' | '/listing/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/favourites' | '/sell' | '/listing/$id'
-  id: '__root__' | '/' | '/favourites' | '/sell' | '/listing/$id'
+  to: '/' | '/auth' | '/favourites' | '/sell' | '/listing/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/favourites'
+    | '/_authenticated/sell'
+    | '/listing/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  FavouritesRoute: typeof FavouritesRoute
-  SellRoute: typeof SellRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ListingIdRoute: typeof ListingIdRoute
 }
 
@@ -78,19 +100,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/favourites': {
-      id: '/favourites'
-      path: '/favourites'
-      fullPath: '/favourites'
-      preLoaderRoute: typeof FavouritesRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sell': {
-      id: '/sell'
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/favourites': {
+      id: '/_authenticated/favourites'
+      path: '/favourites'
+      fullPath: '/favourites'
+      preLoaderRoute: typeof AuthenticatedFavouritesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sell': {
+      id: '/_authenticated/sell'
       path: '/sell'
       fullPath: '/sell'
-      preLoaderRoute: typeof SellRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedSellRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/listing/$id': {
       id: '/listing/$id'
@@ -102,10 +138,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedFavouritesRoute: typeof AuthenticatedFavouritesRoute
+  AuthenticatedSellRoute: typeof AuthenticatedSellRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedFavouritesRoute: AuthenticatedFavouritesRoute,
+  AuthenticatedSellRoute: AuthenticatedSellRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  FavouritesRoute: FavouritesRoute,
-  SellRoute: SellRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ListingIdRoute: ListingIdRoute,
 }
 export const routeTree = rootRouteImport

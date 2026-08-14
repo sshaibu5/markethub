@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
 
-import { formatPrice, useMarket, type Listing } from "@/lib/market";
+import { useFavourites } from "@/hooks/useFavourites";
+import { formatPrice, resolveImage, type Listing } from "@/lib/market-data";
 
 export function ListingCard({ listing }: { listing: Listing }) {
-  const { isFavourite, toggleFavourite } = useMarket();
+  const { isFavourite, toggle } = useFavourites();
   const saved = isFavourite(listing.id);
+  const image = resolveImage(listing.image);
 
   return (
     <article className="group relative overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-paper">
@@ -16,9 +18,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
         aria-label={listing.title}
       >
         <div className="aspect-4/3 overflow-hidden bg-muted">
-          {listing.image ? (
+          {image ? (
             <img
-              src={listing.image}
+              src={image}
               alt={listing.title}
               loading="lazy"
               width={800}
@@ -36,13 +38,20 @@ export function ListingCard({ listing }: { listing: Listing }) {
             {listing.category} · {listing.location}
           </p>
           <h3 className="text-lg leading-snug">{listing.title}</h3>
-          <p className="font-display text-xl text-primary">{formatPrice(listing.price)}</p>
+          <p className="font-display text-xl text-primary">
+            {formatPrice(listing.price)}
+            {listing.isSold && (
+              <span className="ml-2 align-middle text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                Sold
+              </span>
+            )}
+          </p>
         </div>
       </Link>
       <button
         type="button"
-        onClick={() => toggleFavourite(listing.id)}
-        aria-label={saved ? "Remove from favourites" : "Save to favourites"}
+        onClick={() => toggle(listing.id)}
+        aria-label={saved ? "Remove from saved" : "Save listing"}
         aria-pressed={saved}
         className="absolute right-3 top-3 rounded-full border border-border bg-card/90 p-2 backdrop-blur transition-colors hover:bg-secondary"
       >
