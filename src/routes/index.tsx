@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 
 import { ListingCard } from "@/components/ListingCard";
-import { CATEGORIES, useMarket } from "@/lib/market";
+import { CATEGORIES } from "@/lib/market-data";
+import { listingsQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -11,55 +12,54 @@ export const Route = createFileRoute("/")({
       { title: "MarketHub — Buy and sell locally" },
       {
         name: "description",
-        content:
-          "Browse local listings, save your favourites and message sellers directly on MarketHub, your neighbourhood marketplace.",
+        content: "Browse furniture, bikes, books and more from neighbours near you on MarketHub.",
       },
       { property: "og:title", content: "MarketHub — Buy and sell locally" },
       {
         property: "og:description",
-        content: "Browse local listings, save favourites and contact sellers on MarketHub.",
+        content: "Browse furniture, bikes, books and more from neighbours near you.",
       },
     ],
   }),
-  component: Browse,
+  loader: ({ context }) => context.queryClient.ensureQueryData(listingsQuery()),
+  component: BrowsePage,
 });
 
-function Browse() {
-  const { listings } = useMarket();
-  const [query, setQuery] = useState("");
+function BrowsePage() {
+  const { data: listings } = useSuspenseQuery(listingsQuery());
+  const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string | null>(null);
 
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return listings.filter(
-      (l) =>
-        (!category || l.category === category) &&
-        (!q || l.title.toLowerCase().includes(q) || l.description.toLowerCase().includes(q)),
-    );
-  }, [listings, query, category]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return listings.filter((listing) => {
+      const matchesCategory = !category || listing.category === category;
+      const matchesSearch =
+        !q ||
+        listing.title.toLowerCase().includes(q) ||
+        listing.description.toLowerCase().includes(q) ||
+        listing.location.toLowerCase().includes(q);
+      return matchesCategory && matchesSearch;
+    });
+  }, [listings, search, category]);
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-16">
-      <header className="max-w-3xl">
-        <h1 className="text-4xl leading-[1.05] sm:text-6xl">Everything nearby, up for grabs</h1>
-        <p className="deck mt-3 text-base sm:text-lg">
-          A local marketplace for the things your neighbours no longer need
-        </p>
-      </header>
+    <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
+      <h1 className="max-w-2xl text-4xl sm:text-5xl">Good things, close by</h1>
+      <p className="deck mt-3 max-w-xl">
+        Buy and sell with people in your neighbourhood — no shipping, no middlemen.
+      </p>
 
-      <div className="mt-10 flex flex-col gap-4">
-        <label className="relative block">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search listings"
-            className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-4 text-sm outline-none transition-colors focus:border-primary"
-          />
-        </label>
-
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          <FilterChip active={category === null} onClick={() => setCategory(null)}>
+      <div className="mt-8 flex flex-col gap-4">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search listings"
+          aria-label="Search listings"
+          className="w-full max-w-md rounded-full border border-border bg-card px-5 py-2.5 text-sm outline-none transition-colors focus:border-primary"
+        />
+        <div className="flex flex-wrap gap-2">
+          <FilterChip active={!category} onClick={() => setCategory(null)}>
             All
           </FilterChip>
           {CATEGORIES.map((c) => (
@@ -70,20 +70,14 @@ function Browse() {
         </div>
       </div>
 
-      <p className="mt-8 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-        {results.length} {results.length === 1 ? "listing" : "listings"}
-      </p>
-
-      <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {results.map((listing) => (
-          <ListingCard key={listing.id} listing={listing} />
-        ))}
-      </div>
-
-      {results.length === 0 && (
-        <p className="mt-10 text-sm text-muted-foreground">
-          Nothing matches that search yet. Try another word or clear the filters.
-        </p>
+      {filtered.length === 0 ? (
+        <p className="mt-16 text-muted-foreground">No listings match that search yet.</p>
+      ) : (
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((listing) => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -102,10 +96,11 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-full border px-4 py-1.5 text-sm transition-colors ${
+      aria-pressed={active}
+      className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
         active
           ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:bg-secondary"
+          : "border-border bg-card text-muted-foreground hover:text-foreground"
       }`}
     >
       {children}

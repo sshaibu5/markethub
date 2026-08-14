@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -11,7 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { MarketProvider } from "@/lib/market";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -125,6 +127,8 @@ function RootShell({ children }: { children: ReactNode }) {
 function SiteHeader() {
   const linkClass = "text-sm text-muted-foreground transition-colors hover:text-foreground";
   const activeProps = { className: "text-sm text-foreground font-medium" };
+  const { user } = useAuth();
+
   return (
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
@@ -138,6 +142,19 @@ function SiteHeader() {
           <Link to="/favourites" className={linkClass} activeProps={activeProps}>
             Saved
           </Link>
+          {user ? (
+            <button
+              type="button"
+              onClick={() => supabase.auth.signOut()}
+              className={linkClass}
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link to="/auth" className={linkClass} activeProps={activeProps}>
+              Sign in
+            </Link>
+          )}
           <Link
             to="/sell"
             className="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
@@ -150,12 +167,28 @@ function SiteHeader() {
   );
 }
 
+function AuthSync() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      router.invalidate();
+      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      else queryClient.clear();
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router, queryClient]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MarketProvider>
+      <AuthProvider>
+        <AuthSync />
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">
@@ -168,8 +201,8 @@ function RootComponent() {
             </p>
           </footer>
         </div>
-      </MarketProvider>
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
-
