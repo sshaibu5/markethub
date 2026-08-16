@@ -1,0 +1,15 @@
+INSERT INTO public.listings (seller_name, title, price, category, location, description, image_url, created_at) VALUES
+('Ama','Cast iron dutch oven',45,'Kitchen','Osu','Barely used 5L enamel dutch oven. Perfect for stews and slow cooks.','seed:pot', now() - interval '2 hours'),
+('Kwesi','Espresso moka pot set',18,'Kitchen','Labone','Stovetop moka pot with two ceramic cups. Great little starter set.',NULL, now() - interval '6 hours'),
+('Nana','Leather hiking boots, size 43',60,'Clothing','East Legon','Broken in but plenty of life left. Waterproofed last season.','seed:boots', now() - interval '1 day'),
+('Efua','Vintage wool overcoat',75,'Clothing','Airport Residential','Charcoal wool, tailored fit, no moth holes. Dry cleaned.','seed:coat', now() - interval '3 days'),
+('Yaw','Wooden baby crib',110,'Kids','Adenta','Solid pine crib with mattress. Smoke free home.','seed:crib', now() - interval '5 hours'),
+('Akos','Box of toddler toys',20,'Kids','Madina','Blocks, puzzles and stacking cups. All cleaned and complete.',NULL, now() - interval '2 days'),
+('Kofi','Cordless drill with bit set',55,'Tools','Tema','18V drill, two batteries and a full bit case. Works perfectly.','seed:drill', now() - interval '9 hours'),
+('Selorm','Step ladder, 6ft',30,'Tools','Spintex','Aluminium, sturdy, folds flat. Selling as we moved to a bungalow.',NULL, now() - interval '4 days'),
+('Abena','Yoga mat and dumbbells',25,'Sports','Cantonments','6mm mat plus a pair of 3kg dumbbells. Home gym clear out.','seed:yoga', now() - interval '30 minutes'),
+('Kojo','Tennis racket + balls',35,'Sports','Dzorwulu','Mid weight racket, fresh grip, tube of balls included.',NULL, now() - interval '3 days'),
+('Naa','Framed landscape painting',90,'Art','Airport Hills','Original oil in a gold wood frame. 60x80cm.','seed:painting', now() - interval '7 hours'),
+('Elorm','Set of three art prints',22,'Art','Osu','A3 botanical prints, unframed, never hung.',NULL, now() - interval '5 days'),
+('Fiifi','Retro turntable',130,'Music','Achimota','Belt drive turntable with built in speakers. Sounds lovely.','seed:turntable', now() - interval '12 hours'),
+('Adjoa','Bluetooth bookshelf speakers',80,'Electronics','Labadi','Pair of compact speakers, warm sound, remote included.',NULL, now() - interval '1 day');
