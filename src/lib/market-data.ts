@@ -4,6 +4,14 @@ import books from "@/assets/item-books.jpg";
 import camera from "@/assets/item-camera.jpg";
 import plant from "@/assets/item-plant.jpg";
 import guitar from "@/assets/item-guitar.jpg";
+import pot from "@/assets/item-pot.jpg";
+import boots from "@/assets/item-boots.jpg";
+import crib from "@/assets/item-crib.jpg";
+import drill from "@/assets/item-drill.jpg";
+import painting from "@/assets/item-painting.jpg";
+import yoga from "@/assets/item-yoga.jpg";
+import coat from "@/assets/item-coat.jpg";
+import turntable from "@/assets/item-turntable.jpg";
 
 export const CATEGORIES = [
   "Furniture",
@@ -12,6 +20,12 @@ export const CATEGORIES = [
   "Electronics",
   "Garden",
   "Music",
+  "Kitchen",
+  "Sports",
+  "Clothing",
+  "Kids",
+  "Tools",
+  "Art",
 ] as const;
 
 export type Listing = {
@@ -35,6 +49,14 @@ const SEED_IMAGES: Record<string, string> = {
   "seed:camera": camera,
   "seed:plant": plant,
   "seed:guitar": guitar,
+  "seed:pot": pot,
+  "seed:boots": boots,
+  "seed:crib": crib,
+  "seed:drill": drill,
+  "seed:painting": painting,
+  "seed:yoga": yoga,
+  "seed:coat": coat,
+  "seed:turntable": turntable,
 };
 
 /** Seed rows store a `seed:*` key; uploaded photos arrive as a signed URL. */
