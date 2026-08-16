@@ -67,13 +67,14 @@ function BrowsePage() {
         />
         <div className="flex flex-wrap gap-2">
           <FilterChip active={!category} onClick={() => setCategory(null)}>
-            All
+            All <span className="opacity-60">{listings.length}</span>
           </FilterChip>
-          {CATEGORIES.map((c) => (
+          {CATEGORIES.filter((c) => counts[c]).map((c) => (
             <FilterChip key={c} active={category === c} onClick={() => setCategory(c)}>
-              {c}
+              {c} <span className="opacity-60">{counts[c]}</span>
             </FilterChip>
           ))}
+
         </div>
       </div>
 
