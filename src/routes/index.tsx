@@ -43,6 +43,13 @@ function BrowsePage() {
     });
   }, [listings, search, category]);
 
+  const counts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const l of listings) map[l.category] = (map[l.category] ?? 0) + 1;
+    return map;
+  }, [listings]);
+
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
       <h1 className="max-w-2xl text-4xl sm:text-5xl">Good things, close by</h1>
